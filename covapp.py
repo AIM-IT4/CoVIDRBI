@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objs as go
 import plotly.subplots as sp
 import locale
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+locale.setlocale(locale.LC_ALL, '')
 
 
 # Read the data
