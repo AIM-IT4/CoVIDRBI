@@ -6,4 +6,3 @@ six
 pyparsing
 python-dateutil
 numpy
-locale
