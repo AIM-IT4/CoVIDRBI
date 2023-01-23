@@ -6,6 +6,7 @@ import plotly.subplots as sp
 import plotly.express as px
 from datetime import datetime
 import locale
+import requests
 
 
 
@@ -115,7 +116,7 @@ location = st.sidebar.selectbox("Select a location", df["location"].unique())
 
 
 # Filter the data based on the selected location
-data = df[df["location"] == location]
+data = df[df["location"] == 'India']
 
 # Show a data table for the selected location
 st.dataframe(data)
@@ -130,16 +131,20 @@ data['new_deaths_ma'] = data['new_deaths'].rolling(window=7).mean()
 
 # Add new cases plot
 fig.add_trace(go.Scatter(x=data['date'], y=data['new_cases_ma'], mode='lines+markers', name='New Cases 7D MA'),1,1)
-
+fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
 # Add new deaths plot
 fig.add_trace(go.Scatter(x=data['date'], y=data['new_deaths_ma'], mode='lines+markers', name='New Deaths 7D MA'),1,2)
-
+fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
 # Add stringency index plot
 fig.add_trace(go.Scatter(x=data['date'], y=data['stringency_index'], mode='lines+markers', name='Stringency Index'),1,3)
-
+fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
 # Customize layout
 fig.update_layout(title='COVID-19 Data', xaxis_title='Date', yaxis_title='Value', margin=dict(l=50, r=50, b=50, t=50, pad=4),
                  width=1200, height=400)
+
 fig.add_shape(
     type='line',
     x0='2021-01-01', y0=data['new_cases_ma'].min(), x1='2021-01-01', y1=data['new_cases_ma'].max(),
@@ -171,6 +176,8 @@ fig.add_annotation(
     align='center'
 )
 
+fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
 # Show plot
 st.plotly_chart(fig)
 
@@ -183,11 +190,16 @@ col4, col5 = st.columns(2)
 with col4:
        fig = go.Figure([go.Bar(x=models["Agency"], y=models['Death Forecasted'],marker_color='yellow',marker_line_width=1)])
        fig.update_layout(width=500, height=400,title_text='Forecasted Deaths in China by Various Agnecies')
+       
+       fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
        st.write(fig) 
        
 with col5:
     fig = go.Figure([go.Bar(x=filtered_data["Country"], y=filtered_data["%Omicron GRA (B.1.1.529+BA.*) in past 4 weeks"],marker_color='orange',marker_line_width=1)])
     fig.update_layout(width=500, height=400,title_text='latest omicron BA2.75 in various countries ')
+    fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
     st.write(fig) 
 
 col6, col7 = st.columns(2)
@@ -197,7 +209,9 @@ with col6:
              text=china['num_seqs'],
              textposition='auto') for Variant in china["Variant"].unique()])
     fig.update_layout(barmode='stack',title_text='Different Variants in China')
-    st.write(fig)
+    fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
+    st.write(fig) 
 
 with col7:
     fig = go.Figure(data=[
@@ -212,7 +226,9 @@ with col7:
     go.Bar(name='Sputnik V', x=vaccinebycompany['Sputnik V'], y=vaccinebycompany['Location'], orientation='h'),])
     # Change the bar mode
     fig.update_layout(barmode='stack',xaxis_title='Total Vaccinations',yaxis_title='Location',title_text='Vaccine by Manufacturer')
-    st.write(fig)
+    fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
+    st.write(fig) 
 
 
 
@@ -232,7 +248,9 @@ with col8:
         showlegend=True,
         legend=dict(x=0, y=1)
     )
-   st.write(fig)
+   fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
+   st.write(fig) 
 
 with col9:
     
@@ -245,7 +263,9 @@ with col9:
     go.Bar(name='BA.5', x=efficacy['BA.5'], y=efficacy['Vaccine'], orientation='h'),])
     # Change the bar mode
     fig.update_layout(barmode='stack',xaxis_title='Efficiency Percentage(%)',yaxis_title='Vaccine',title_text='Vaccine Efficacy')
-    st.write(fig)
+    fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
+    st.write(fig) 
 
 col10, col11= st.columns(2)
 with col10:
@@ -262,6 +282,8 @@ with col11:
                    yaxis=dict(title='Exports as share of total supply'))
 
     fig = go.Figure(data=data, layout=layout)
+    fig.update_layout(xaxis=dict(fixedrange=True),
+                  yaxis=dict(fixedrange=True))
     st.plotly_chart(fig)
 
 
@@ -283,6 +305,28 @@ st.markdown("- [Our World in Data](https://ourworldindata.org/)")
 st.markdown("- [The Economist](https://www.economist.com/)")
 st.markdown("- [Airfinity](https://www.airfinity.com/)")
 st.markdown("- [John Hopkins University](https://www.jhu.edu/)")
+
+
+from newsapi import NewsApiClient
+
+# Initialize the NewsAPI client with your API key
+newsapi = NewsApiClient(api_key='4dbad2f0f4b84b1ba1c01da17d5da839')
+
+# Retrieve news articles
+articles = newsapi.get_everything(q='covid-19', language='en', sort_by='publishedAt')
+
+# Loop through the articles and display the title and description
+for article in articles["articles"]:
+    st.title(article["title"])
+    st.markdown(article["description"])
+    st.markdown(article["url"])
+    st.markdown("")
+
+
+
+
+
+
 
 
 
