@@ -6,4 +6,4 @@ six
 pyparsing
 python-dateutil
 numpy
-newsapi
+newsapi-python
