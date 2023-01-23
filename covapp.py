@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-
 import plotly.graph_objs as go
 import plotly.graph_objects as go
 import plotly.subplots as sp
@@ -276,8 +275,19 @@ st.write("4.Now, one larger wave is predicted as against the previous estimate o
 
 st.empty()
 
-st.markdown("Copyright \u00A9 2023 Reserve Bank of India")
 
+st.markdown("Data sources: ")
+st.markdown("- [IHME](https://www.healthdata.org/)")
+st.markdown("- [GISAID](https://www.gisaid.org/)")
+st.markdown("- [Our World in Data](https://ourworldindata.org/)")
+st.markdown("- [The Economist](https://www.economist.com/)")
+st.markdown("- [Airfinity](https://www.airfinity.com/)")
+st.markdown("- [John Hopkins University](https://www.jhu.edu/)")
+
+
+
+
+st.markdown("Copyright \u00A9 2023 Reserve Bank of India")
 
 
 
