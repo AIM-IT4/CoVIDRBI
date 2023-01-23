@@ -7,6 +7,7 @@ import plotly.express as px
 from datetime import datetime
 import locale
 import requests
+from newsapi import NewsApiClient
 
 
 
@@ -306,8 +307,6 @@ st.markdown("- [The Economist](https://www.economist.com/)")
 st.markdown("- [Airfinity](https://www.airfinity.com/)")
 st.markdown("- [John Hopkins University](https://www.jhu.edu/)")
 
-
-from newsapi import NewsApiClient
 
 # Initialize the NewsAPI client with your API key
 newsapi = NewsApiClient(api_key='4dbad2f0f4b84b1ba1c01da17d5da839')
