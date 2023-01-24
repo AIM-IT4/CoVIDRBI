@@ -2,12 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.graph_objects as go
-import plotly.subplots as sp
+
 import plotly.express as px
 from datetime import datetime
 import locale
 import requests
-from newsapi import NewsApiClient
 
 
 
@@ -30,8 +29,9 @@ st.set_page_config(page_title="COVID-19 Dashboard", page_icon=":guardsman:", lay
 
 
 # st.image("RBI-Emblem-PNG.png", use_column_width=False, width=100, caption="Department of Economic and Policy Research - Division of International Finance")
-st.sidebar.image("RBI-Emblem-PNG.png", use_column_width=False, width=80)
-st.sidebar.markdown("Department of Economic and Policy Research - Division of International Finance")
+st.image("RBI-Emblem-PNG.png", use_column_width=False, width=100)
+st.markdown("Department of Economic and Policy Research" )
+st.markdown("Division of International Finance")
 
 st.title('COVID-19 Dashboard')
 st.write("The data on the coronavirus pandemic is updated daily")
@@ -112,7 +112,7 @@ with col3:
 # st.sidebar.image("RBI-Emblem-PNG.png", use_column_width=False, width=80)
 # st.sidebar.markdown("Department of Economic and Policy Research - Division of International Finance")
 
-location = st.sidebar.selectbox("Select a location", df["location"].unique())
+# location = st.selectbox("Select a location", df["location"].unique())
 
 
 
@@ -123,64 +123,105 @@ data = df[df["location"] == 'India']
 st.dataframe(data)
 
 
-fig = sp.make_subplots(rows=1, cols=3, subplot_titles=(f"New Cases 7D MA for {location}",f"New Deaths 7D MA for {location}",f"Stringency Index for {location}"))
-# 7-day moving average of new cases
-data['new_cases_ma'] = data['new_cases'].rolling(window=7).mean()
+# fig = sp.make_subplots(rows=1, cols=3, subplot_titles=(f"New Cases 7D MA for {location}",f"New Deaths 7D MA for {location}",f"Stringency Index for {location}"))
+# # 7-day moving average of new cases
+# data['new_cases_ma'] = data['new_cases'].rolling(window=7).mean()
 
-# 7-day moving average of new deaths
-data['new_deaths_ma'] = data['new_deaths'].rolling(window=7).mean()
+# # 7-day moving average of new deaths
+# data['new_deaths_ma'] = data['new_deaths'].rolling(window=7).mean()
 
-# Add new cases plot
-fig.add_trace(go.Scatter(x=data['date'], y=data['new_cases_ma'], mode='lines+markers', name='New Cases 7D MA'),1,1)
-fig.update_layout(xaxis=dict(fixedrange=True),
-                  yaxis=dict(fixedrange=True))
-# Add new deaths plot
-fig.add_trace(go.Scatter(x=data['date'], y=data['new_deaths_ma'], mode='lines+markers', name='New Deaths 7D MA'),1,2)
-fig.update_layout(xaxis=dict(fixedrange=True),
-                  yaxis=dict(fixedrange=True))
-# Add stringency index plot
-fig.add_trace(go.Scatter(x=data['date'], y=data['stringency_index'], mode='lines+markers', name='Stringency Index'),1,3)
-fig.update_layout(xaxis=dict(fixedrange=True),
-                  yaxis=dict(fixedrange=True))
-# Customize layout
-fig.update_layout(title='COVID-19 Data', xaxis_title='Date', yaxis_title='Value', margin=dict(l=50, r=50, b=50, t=50, pad=4),
-                 width=1200, height=400)
+# # Add new cases plot
+# fig.add_trace(go.Scatter(x=data['date'], y=data['new_cases_ma'], mode='lines+markers', name='New Cases 7D MA'),1,1)
+# fig.update_layout(xaxis=dict(fixedrange=True),
+#                   yaxis=dict(fixedrange=True))
 
-fig.add_shape(
+
+# # Add new deaths plot
+# fig.add_trace(go.Scatter(x=data['date'], y=data['new_deaths_ma'], mode='lines+markers', name='New Deaths 7D MA'),1,2)
+# fig.update_layout(xaxis=dict(fixedrange=True),
+#                   yaxis=dict(fixedrange=True))
+
+# Create subplots with 2 rows and 1 column
+
+# Filter data for India and China
+india_data = df[df["location"] == "India"]
+china_data = df[df["location"] == "China"]
+usa_data = df[df["location"] == "United States"]
+
+# calculate 7 day moving average of new cases
+india_data['new_cases_ma'] = india_data['new_cases'].rolling(7).mean()
+china_data['new_cases_ma'] = china_data['new_cases'].rolling(7).mean()
+usa_data['new_cases_ma'] = usa_data['new_cases'].rolling(7).mean()
+
+# Calculate 7 day MA of new_deaths
+india_data["7_day_MA"] = india_data["new_deaths"].rolling(window=7).mean()
+china_data["7_day_MA"] = china_data["new_deaths"].rolling(window=7).mean()
+usa_data["7_day_MA"] = usa_data["new_deaths"].rolling(window=7).mean()
+
+col12, col13,col14 = st.columns(3)
+with col12:
+    fig = go.Figure([go.Line(x=india_data["date"], y=india_data['new_cases_ma'],marker_color='yellow', name='India',marker_line_width=1)])
+# Add trace for new cases 7D MA in China
+    fig.add_trace(go.Line(x=china_data['date'], y=china_data['new_cases_ma'], mode='lines', name='China'))
+    fig.add_trace(go.Line(x=usa_data['date'], y=usa_data['new_cases_ma'], mode='lines', name='USA'))
+    fig.update_layout(
+    legend=dict(x=0, y=1, traceorder="normal"))
+    fig.add_shape(
     type='line',
-    x0='2021-01-01', y0=data['new_cases_ma'].min(), x1='2021-01-01', y1=data['new_cases_ma'].max(),
-    line=dict(color='yellow', width=1, dash='dot')
-)
-fig.add_shape(
+    x0='2021-01-01', y0=india_data['new_cases_ma'].min(), x1='2021-01-01', y1=india_data['new_cases_ma'].max(),
+    line=dict(color='yellow', width=1, dash='dot'))
+    fig.add_shape(
     type='line',
-    x0='2022-10-10', y0=data['new_cases_ma'].min(), x1='2022-10-10', y1=data['new_cases_ma'].max(),
-    line=dict(color='yellow', width=1, dash='dot')
-)
-fig.add_annotation(
-    x='2021-01-01', y=data['new_cases_ma'].max(),
+    x0='2022-10-10', y0=india_data['new_cases_ma'].min(), x1='2022-10-10', y1=india_data['new_cases_ma'].max(),
+    line=dict(color='yellow', width=1, dash='dot'))
+    fig.add_annotation(
+    x='2021-01-01', y=india_data['new_cases_ma'].max(),
     text='Delta',
     showarrow=True,
     font=dict(
         color='white',
         size=14
     ),
-    align='center'
-)
-fig.add_annotation(
-    x='2022-10-10', y=data['new_cases_ma'].max(),
+    align='center')
+    fig.add_annotation(
+    x='2022-10-10', y=india_data['new_cases_ma'].max(),
     text='Omicron',
     showarrow=True,
     font=dict(
         color='white',
         size=14
     ),
-    align='center'
-)
+    align='center')
+    fig.update_layout(width=500, height=400)
+    fig.update_layout(xaxis=dict(fixedrange=True),
+                 yaxis=dict(fixedrange=True))
+    st.write(fig)
 
-fig.update_layout(xaxis=dict(fixedrange=True),
-                  yaxis=dict(fixedrange=True))
-# Show plot
-st.plotly_chart(fig)
+with col13:
+    fig = go.Figure([go.Line(x=india_data["date"], y=india_data['7_day_MA'],marker_color='yellow',marker_line_width=1,name='India')])
+
+    fig.add_trace(go.Line(x=china_data['date'], y=china_data['7_day_MA'], mode='lines', name='China'))
+    fig.add_trace(go.Line(x=usa_data['date'], y=usa_data['7_day_MA'], mode='lines', name='USA'))
+
+    fig.update_layout(width=500, height=400,
+    legend=dict(x=0, y=1, traceorder="normal"))
+    fig.update_layout(xaxis=dict(fixedrange=True),
+                 yaxis=dict(fixedrange=True))
+    st.write(fig)
+
+with col14:
+    fig = go.Figure([go.Line(x=india_data["date"], y=india_data['stringency_index'],marker_color='yellow',marker_line_width=1,name='India')])
+    fig.add_trace(go.Line(x=china_data['date'], y=china_data['stringency_index'], mode='lines+markers', name='China'))
+    fig.add_trace(go.Line(x=usa_data['date'], y=usa_data['stringency_index'], mode='lines+markers', name='USA'))
+
+    fig.update_layout(width=500, height=400,legend=dict(x=0, y=1, traceorder="normal"))
+    fig.update_layout(xaxis=dict(fixedrange=True),
+                 yaxis=dict(fixedrange=True))
+                 
+
+    st.write(fig)
+
+
 
 
 #Filter data for the selected countries
@@ -287,17 +328,21 @@ with col11:
                   yaxis=dict(fixedrange=True))
     st.plotly_chart(fig)
 
+st.image("Food.png")
+st.image("medical.png")
+
 
 
 
 st.write("New COVID-19 cases are falling globally, barring China.")
-st.write("1. Level of stringency has moderated significantly in case of India and US whereas the recent spike in COVID cases has resulted imposition of various measures in China.")
+st.write("1.Level of stringency has moderated significantly in case of India and US whereas the recent spike in COVID cases has resulted imposition of various measures in China.")
 st.write("2.China lifting its Zero-Tolerance COVID policy on December 8, 2022, and has provided an official estimate of 59,938 deaths.")
 st.write("3.Official estimates seem to be significantly lower than those from other experts.")
 st.write("4.Now, one larger wave is predicted as against the previous estimate of one larger and more severe wave. The large continuous wave implies increased pressure on healthcare services and therefore, potentially higher fatalities.")
 
 st.empty()
 
+        
 
 st.markdown("Data sources: ")
 st.markdown("- [IHME](https://www.healthdata.org/)")
@@ -307,20 +352,19 @@ st.markdown("- [The Economist](https://www.economist.com/)")
 st.markdown("- [Airfinity](https://www.airfinity.com/)")
 st.markdown("- [John Hopkins University](https://www.jhu.edu/)")
 
+st.title("Latest New on COVID-19")
+
+from newsapi import NewsApiClient
 
 # Initialize the NewsAPI client with your API key
 newsapi = NewsApiClient(api_key='4dbad2f0f4b84b1ba1c01da17d5da839')
 
-# Retrieve news articles
-articles = newsapi.get_everything(q='covid-19', language='en', sort_by='publishedAt')
-
-# Loop through the articles and display the title and description
-for article in articles["articles"]:
+articles = newsapi.get_everything(q='covid-19', language='en', sort_by='publishedAt', page_size=5)
+for article in articles["articles"][:5]:
     st.title(article["title"])
     st.markdown(article["description"])
     st.markdown(article["url"])
     st.markdown("")
-
 
 
 
@@ -342,3 +386,12 @@ hide_streamlit_style = """
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
+hide_streamlit_style = """
+<style>
+#Sidebar {
+  visibility: hidden;
+}
+</style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
