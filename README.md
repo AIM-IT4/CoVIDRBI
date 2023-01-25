@@ -1,6 +1,8 @@
 # CoVIDRBI
 
 The Reserve Bank of India (RBI) has developed a COVID Dashboard App to provide real-time updates on various dynamics of the COVID-19 pandemic and the policy response in India. This app is designed to serve as a one-stop destination for all COVID-related information and data, making it easy for users to stay informed about the latest developments.
+Dashboard can be accesible here: https://covidrbi.streamlit.app/
+
 
 Features
 Real-time updates on COVID-19 cases, deaths, and recoveries in India
